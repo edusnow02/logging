@@ -1,0 +1,77 @@
+INICIO
+
+CREAR aplicación web
+
+DEFINIR lista TOKENS válidos:
+    - token-alpha-001
+    - token-beta-002
+    - token-gamma-003
+
+
+FUNCIÓN inicializar_db():
+    CONECTAR a base de datos "logs_data/logs.db"
+    
+    EJECUTAR:
+        CREAR tabla "logs" SI NO EXISTE con campos:
+            id (autoincremental)
+            timestamp (texto)
+            service (texto)
+            severity (texto)
+            message (texto)
+            received_at (texto)
+    
+    CERRAR conexión
+
+
+RUTA "/logs" MÉTODO POST:
+    
+    OBTENER token del header "Authorization"
+    QUITAR el texto "Token " del token
+    
+    SI token NO está en TOKENS:
+        RESPONDER error 401 ("no autorizado")
+    
+    OBTENER datos JSON del request
+    
+    CONECTAR a la base de datos
+    
+    INSERTAR en tabla "logs":
+        timestamp      ← datos["timestamp"]
+        service        ← datos["service"]
+        severity       ← datos["severity"]
+        message        ← datos["message"]
+        received_at    ← hora actual en formato UTC
+    
+    CERRAR conexión
+    
+    RESPONDER:
+        "Log guardado" con código 201
+
+
+RUTA "/logs" MÉTODO GET:
+    
+    CONECTAR a la base de datos
+    
+    CONSULTAR:
+        SELECT * FROM logs
+        ORDENAR por received_at DESC (más nuevos primero)
+    
+    GUARDAR resultados en lista "filas"
+    
+    CERRAR conexión
+    
+    CONVERTIR cada fila a diccionario
+    
+    RESPONDER:
+        total ← cantidad de filas
+        logs  ← lista de logs
+
+
+FUNCIÓN PRINCIPAL:
+    
+    LLAMAR a inicializar_db()
+    
+    INICIAR servidor en puerto 5000 con modo debug activado
+
+
+FIN
